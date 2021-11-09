@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Replace the clientid Here with your Client ID. -->
+    <meta name="google-signin-clientid" content="675954646436-qs593t199b1nt7gj0v6p4njau8724oss.apps.googleusercontent.com">
+    <meta name="google-signin-scope" content="https://www.googleapis.com/auth/plus.profile.emails.read"/>
+    <meta name="google-signin-requestvisibleactions" content="http://schema.org/AddAction" />
+    <meta name="google-signin-cookiepolicy" content="single_host_origin" />
+    <!------>
+
+  <link rel="stylesheet" href="css/jquery.mobile.min.css"/>
+  <link rel="stylesheet" type="text/css" href="css/jsontable.css" />
+  <link rel="shortcut icon" href="favicon.ico" />
+    <meta charset="utf-8" />
+    <title>鸿天科技Webrtc视频客户端</title>
+
+    <style type="text/css">
+.pageheader {
+	 font-size: 22px;
+	 font-weight: normal;
+	 height: 27px;
+}
+
+.ctlbtn {
+	 border: 2px;
+	 border-style:outset;
+	 color: #ffffff;
+	 min-width: 125px;
+	 background-color: #666666;
+	 font-face: arial;
+	 height:18px;
+	 font-size:7pt;
+}
+
+.ctlbtn:hover {
+	 color: #ffffae;
+	 cursor: pointer;
+}
+
+.vidbtn {
+	font-face: arial;
+        font-size:7pt;
+}
+
+#chatwin
+{
+	background-color: #eeeeee;
+	width: 500px;
+	height:150px;
+	overflow-y: scroll;
+	scrolling: auto;
+	text-align: left;
+	border-style:inset;
+	font-size: 10pt;
+	color: #3333ff;
+	resize:both;
+}
+
+.chatuid
+{
+	font-size: 7pt;
+	font-weight: bold;
+	color: #ff3333;
+}
+
+.chatimg
+{
+	max-width:100px;
+}
+
+.l1
+{
+	border:1;
+	background-color:#fefefe;
+	height:1px;
+	opacity:0.4;
+}
+#chatmsg
+{
+	width:400px;
+	max-height:40px;
+}
+
+div#preload { display: none; }
+
+    </style>
+
+  </head>
+  <body>
+    <div data-role="page" id="page-login" align="center">
+      <div data-role="header" class="page-header">
+	鸿天科技Webrtc视频客户端 
+      </div>
+
+    </div>
+
+
+    <div data-role="page" id="page-enum" align="center">
+      <div data-role="header" class="page-header">
+	设备查找
+      </div>
+      <div id="search" hidden="true">
+	<img src="images/search.gif"/>
+	</div>
+
+    </div>
+
+
+    <div data-role="page" id="page-bwtest" align="center">
+      <div data-role="header" class="page-header">
+	网络连接测试
+      </div>
+
+      <h1>网络连接测试中</h1>
+      	<img src="images/speed.gif"/>
+
+
+    </div>
+
+
+    <div data-role="page" id="page-incall" align="center">
+      <div data-role="header" id="calltitle" class="pageheader">
+	呼叫中
+      </div>
+
+
+
+
+<div id="fs" xstyle="width:100%;height:100%">
+<div id="rows" style="background-color:#f9f9f9">
+
+<span id=usrinner style="margin:25px">
+  <span id=usrctl><b>用户控制</b></span>
+      <div id=usr2>
+
+
+      <div id="canvasButtons" hidden="true">
+          <button data-inline="true" id="hupbtn2">挂断</button>
+	  <button data-inline="true" id="fullbtn2">全屏</button>
+      </div>
+
+      <div id="mainButtons">
+
+      <button data-inline="true" id="hold">呼叫保持</button>
+      <button data-inline="true" id="hupbtn">挂断</button>
+      
+      <button data-inline="true" id="localmutebtn">本地音频静音切换</button>
+      <button data-inline="true" id="localvidmutebtn">本地视频静默切换</button>
+      <button data-inline="true" class="startxferbtn">呼叫转移</button>
+      <span class="sharediv">
+	  <button data-inline="true" id="sharebtn">屏幕共享</button>
+	  <button data-inline="true" id="nosharebtn">结束共享</button>
+      </span>
+	 <span class="sharediv">
+	  <button data-inline="true" id="smallerbtn">减小 - </button>
+	  <button data-inline="true" id="biggerbtn">增大 +</button>
+	  <button data-inline="true" id="fullbtn">进入全屏</button>
+	  <button data-inline="true" id="mutebtn">远端音频静音切换</button>
+	  <button data-inline="true" id="vmutebtn">远端视频静默切换</button>
+	 </span>
+    </div>
+
+<br><br>
+      <div id="conf" xstyle="width:100%;height:100%">
+	<div style="color:black;font-family: verdana" align="center" id="conf_count"></div><br>
+	<table width="1400" cellspacing="0" cellpadding="0" border="0" align="center" id="conf_list" class="jsDataTable">
+	</table>
+
+	<div id="canvasui" style="width:700px;" hidden="true">
+	<br><br>
+	<table border=0 cellspacing=0 cellpadding=0>
+	<tr><td width=180><b>附加画布</b>:</td><td><select style="width:200px;" id="canvasid"></select></td><td width=220 align=right><button id="canvasbut" style="width:200px;">开启画布</button></td></tr>
+	</table>
+	<br><br>
+	</div>
+
+	</div><!---conf-->
+
+
+
+      <div id="message" hidden="true">
+	<hr class="l1" width="500"/>
+	<div id="chatwin"></div>
+<!--	<textarea readonly id="chatwin"></textarea>-->
+	<table><tr><td><textarea id="chatmsg"></textarea></td><td><button id="chatsend" style="width:100px;">发送</button></td></tr></table>
+	<hr class="l1" width="500"/><br>
+      </div>
+      
+
+
+      <div id="hctop" hidden="true">
+	<br/><br/>
+	<div id="hcmessage"></div> 
+	<br><br>
+      </div>
+      
+      <div class="ui-field-contain" id="xferdiv">
+	<input data-mini="true" type="text" id="xferto"><br>
+      <button data-inline="true" id="cancelxferbtn">取消转移</button>
+      <button data-inline="true" class="startxferbtn">提交转移</button>
+      </div>
+
+
+
+
+
+      <div id=keypad>
+	<button class="dtmf" data-inline="true">1</button>
+	<button class="dtmf" data-inline="true">2</button>
+	<button class="dtmf" data-inline="true">3</button>
+	<br>
+	<button class="dtmf" data-inline="true">4</button>
+	<button class="dtmf" data-inline="true">5</button>
+	<button class="dtmf" data-inline="true">6</button>
+	<br>	
+	<button class="dtmf" data-inline="true">7</button>
+	<button class="dtmf" data-inline="true">8</button>
+	<button class="dtmf" data-inline="true">9</button>
+	<br>
+	<button class="dtmf" data-inline="true">*</button>
+	<button class="dtmf" data-inline="true">0</button>
+	<button class="dtmf" data-inline="true">#</button>
+      </div>
+	<br><br>
+
+      	<div id="conf_mod" style="width:450px"></div>
+	<div style="color:blue" id="conf_display"></div>
+
+</span>
+</div>
+
+</div><!-- fs -->
+
+
+
+
+
+      <video id="webcam" autoplay="autoplay" style="width:300;height:300;object-fit:inherit;"></video>
+<br><br>
+	<table><tr><td>
+      <div style="width:500px;max-height:300px;overflow-y:scroll;display:block;unicode-bidi:embed;font-family:tahoma;white-space:pre;size:14pt;text-align:left" id="rtt_in"></div>
+</td></tr>
+<tr><td>
+      <textarea style="width:500px;height:200px" id="rtt"></textarea>
+</td></tr>
+</table>
+      <!--<video id="local_webcam" autoplay="autoplay" style="width:100%;height:100%;object-fit:inherit;"></video>-->
+
+</div><!-- rows -->
+
+
+
+
+
+<br><br>
+
+	</div>
+
+
+
+	
+	<div data-role="page" id="page-main" align="center">
+	<div data-role="header" class="pageheader">
+	  鸿天科技Webrtc视频客户端(<span id="bwinfo"></span>)
+	</div>
+	<br>
+
+      <div id="offline">
+        <div id="errordisplay" style="font-weight:bold;font-size:18px;color:#ae0000"></div>
+
+      <div class="ui-field-contain">
+	<label for="name">用户名</label>
+	<input type="text" size="20" id="login"/>
+      </div>
+
+      <div class="ui-field-contain">
+	<label for="name">密码</label>
+	<input type="password" size="20" id="passwd"/>
+      </div>
+
+      <div class="ui-field-contain">
+	<label for="name">服务器</label>
+	<input type="text" size="20" id="wsURL"/>
+      </div>
+	<input type="hidden" id="hostName" value=""/>
+      <br><br>
+      <button data-inline="true" id="loginbtn">登录</button>      
+
+<script>
+function playvid(file)
+{
+	$("#ext").val("vid_" + file);
+	$("#callbtn").click();
+}
+
+function dial(ext)
+{
+	$("#ext").val(ext);
+	$("#callbtn").click();
+}
+
+</script>
+
+
+
+
+      <br><br><br>
+      
+	</div>
+
+      <div id="online" align="center" style="width:75%">
+	<div class="ui-field-contain">
+
+<script>
+function toggle_demo() {
+
+if ($('#demos').is(':visible')) {
+    $('#demos').hide();
+    //$('#showdemo').text("Show Demo Extensions");
+} else {
+    $('#devices').hide();$('#showdevices').show();$('#demos').show();
+    //$('#showdemo').text("Hide Demo Extensions");
+}
+
+}
+
+function toggle_device() {
+
+if ($('#devices').is(':visible')) {
+    $('#devices').hide();
+    $('#showdevices').text("显示视频设置");
+} else {
+    $('#devices').show();$('#demos').hide();
+    $('#showdevices').text("隐藏视频设置");
+}
+
+}
+
+</script>
+<!--<button data-inline="true" id="showdemo" onclick="toggle_demo();">View Demo Extensions</button>-->
+<button data-inline="true" id="showdevices" onclick="toggle_device();">视频设备设置</button>
+<!--<button data-inline="true"id="speedbtn">速度测试</button>-->
+<button data-inline="true"id="logoutbtn">登出</button>
+
+<div id="devices" style="border-style:outset;border-width:2px">
+
+<div id="camdiv">
+
+  <legend><b>摄相头</b>:</legend><select data-theme="a" data-overlay-theme="a" data-native-menu="false" id="usecamera"></select>
+<br>
+  <legend><b>显示屏</b>:</legend><select data-theme="a" data-overlay-theme="a" data-native-menu="false" id="useshare"></select>
+
+<br><br></div>
+
+<legend><b>麦克风</b>:</legend><select data-theme="a" data-overlay-theme="a" data-native-menu="false" id="usemic"></select>
+<br>
+<legend><b>扬声器</b>:</legend><select data-theme="a" data-overlay-theme="a" data-native-menu="false" id="usespeak"></select>
+
+<Br clear="all"><Br>
+
+<div style="xvisibility:hidden">
+	<label><input id="use_vid" type="checkbox" value="foo" > 开启视频</label>
+	<label><input id="use_stereo" type="checkbox" value="foo" > 立体声</label>
+	<label><input id="use_stun" type="checkbox" value="foo" > 使用STUN</label>
+<!--	<label><input id="local_video" type="checkbox" value="foo" > Local Video</label>-->
+</div>
+
+
+<Br clear="all">
+<br><br>
+<div >
+  <fieldset data-role="controlgroup" data-type="horizontal">
+    <legend><b>视频质量</b>:</legend>
+
+    <input type="radio" name="vqual" id="vqual_qqvga" value="qqvga">
+    <label for="vqual_qqvga">QQVGA 160x120</label>
+
+    <input type="radio" name="vqual" id="vqual_qvga" value="qvga">
+    <label for="vqual_qvga">QVGA 320x240</label>
+
+    <input type="radio" name="vqual" id="vqual_qvga2" value="qvga2">
+    <label for="vqual_qvga2">320x320</label>
+
+    <input type="radio" name="vqual" id="vqual_vga" value="vga">
+    <label for="vqual_vga">VGA 640x480</label>
+
+    <input type="radio" name="vqual" id="vqual_vga3" value="vga2">
+    <label for="vqual_vga3">480x480</label>
+
+    <input type="radio" name="vqual" id="vqual_vga2" value="vga2">
+    <label for="vqual_vga2">640x640</label>
+
+    <input type="radio" name="vqual" id="vqual_qvga_wide" value="qvga_wide">
+    <label for="vqual_qvga_wide">QVGA WIDE 320x180</label>
+ 
+    <input type="radio" name="vqual" id="vqual_vga_wide" value="vga_wide">
+    <label for="vqual_vga_wide">VGA WIDE 640x360</label>
+
+    <input type="radio" name="vqual" id="vqual_hd" value="hd">
+    <label for="vqual_hd">HD 1280x720</label>
+
+    <input type="radio" name="vqual" id="vqual_hhd" value="hhd">
+    <label for="vqual_hhd">HHD 1920x1080</label>
+
+  </fieldset>
+</div><br clear="all"><br>
+
+<div >
+  <fieldset data-role="controlgroup" data-type="horizontal">
+    <legend><b>最小帧率</b>:</legend>
+
+    <input type="radio" name="vid_minFrameRate" id="minFrameRate_15" value="15">
+    <label for="minFrameRate_15">15</label>
+
+    <input type="radio" name="vid_minFrameRate" id="minFrameRate_20" value="20">
+    <label for="minFrameRate_20">20</label>
+
+    <input type="radio" name="vid_minFrameRate" id="minFrameRate_25" value="25">
+    <label for="minFrameRate_25">25</label>
+
+    <input type="radio" name="vid_minFrameRate" id="minFrameRate_30" value="30">
+    <label for="minFrameRate_30">30</label>
+  </fieldset>
+</div><br clear="all"><br>
+
+<div >
+  <fieldset data-role="controlgroup" data-type="horizontal">
+    <legend><b>最大帧率</b>:</legend>
+
+    <input type="radio" name="vid_BestFrameRate" id="bestFrameRate_15" value="15">
+    <label for="bestFrameRate_15">15</label>
+
+    <input type="radio" name="vid_BestFrameRate" id="bestFrameRate_20" value="20">
+    <label for="bestFrameRate_20">20</label>
+
+    <input type="radio" name="vid_BestFrameRate" id="bestFrameRate_25" value="25">
+    <label for="bestFrameRate_25">25</label>
+
+    <input type="radio" name="vid_BestFrameRate" id="bestFrameRate_30" value="30">
+    <label for="bestFrameRate_30">30</label>
+  </fieldset>
+</div><br clear="all"><br>
+
+<div >
+  <fieldset data-role="controlgroup" data-type="horizontal">
+    <legend><b>发送带宽</b>:</legend>
+
+    <input type="radio" name="outgoingBandwidth" id="outgoingBandwidth_250kb" value="250">
+    <label for="outgoingBandwidth_250kb">250kb</label>
+
+    <input type="radio" name="outgoingBandwidth" id="outgoingBandwidth_500kb" value="500">
+    <label for="outgoingBandwidth_500kb">500kb</label>
+
+    <input type="radio" name="outgoingBandwidth" id="outgoingBandwidth_1024kb" value="1024">
+    <label for="outgoingBandwidth_1024kb">1mb</label>
+
+    <input type="radio" name="outgoingBandwidth" id="outgoingBandwidth_1536kb" value="1536">
+    <label for="outgoingBandwidth_1536kb">1.5mb</label>
+
+    <input type="radio" name="outgoingBandwidth" id="outgoingBandwidth_2048kb" value="2048">
+    <label for="outgoingBandwidth_2048kb">2mb</label>
+
+    <input type="radio" name="outgoingBandwidth" id="outgoingBandwidth_5120kb" value="5120">
+    <label for="outgoingBandwidth_5120kb">5mb</label>
+
+    <input type="radio" name="outgoingBandwidth" id="outgoingBandwidth_0kb" value="0">
+    <label for="outgoingBandwidth_0kb">不限</label>
+
+    <input type="radio" name="outgoingBandwidth" id="outgoingBandwidth_default" value="default">
+    <label for="outgoingBandwidth_default">服务端默认</label>
+
+ 
+  </fieldset>
+</div><br clear="all"><br>
+
+
+<div >
+  <fieldset data-role="controlgroup" data-type="horizontal">
+    <legend><b>接收带宽</b>:</legend>
+
+    <input type="radio" name="incomingBandwidth" id="incomingBandwidth_250kb" value="250">
+    <label for="incomingBandwidth_250kb">250kb</label>
+
+    <input type="radio" name="incomingBandwidth" id="incomingBandwidth_500kb" value="500">
+    <label for="incomingBandwidth_500kb">500kb</label>
+
+    <input type="radio" name="incomingBandwidth" id="incomingBandwidth_1024kb" value="1024">
+    <label for="incomingBandwidth_1024kb">1mb</label>
+
+    <input type="radio" name="incomingBandwidth" id="incomingBandwidth_1536kb" value="1536">
+    <label for="incomingBandwidth_1536kb">1.5mb</label>
+
+    <input type="radio" name="incomingBandwidth" id="incomingBandwidth_2048kb" value="2048">
+    <label for="incomingBandwidth_2048kb">2mb</label>
+
+    <input type="radio" name="incomingBandwidth" id="incomingBandwidth_5120kb" value="5120">
+    <label for="incomingBandwidth_5120kb">5mb</label>
+
+    <input type="radio" name="incomingBandwidth" id="incomingBandwidth_0kb" value="0">
+    <label for="incomingBandwidth_0kb">不限</label>
+
+    <input type="radio" name="incomingBandwidth" id="incomingBandwidth_default" value="default">
+    <label for="incomingBandwidth_default">服务端默认</label>
+ 
+  </fieldset>
+</div><br clear="all"><br>
+	<label><input id="use_dedenc" type="checkbox" value="foo" > 使用专用远程编码器</label>
+	<label><input id="mirror_input" type="checkbox" value="foo" >自动缩放远端视频到本地摄像头分辨率</label>
+<br><br>
+<center><button data-inline="true" id="refreshbtn">刷新视频列表</button>
+<button data-inline="true" id="hidedevices" onclick="toggle_device()">隐藏视频设置</button>
+
+</center>
+<Br clear="all"><br>
+
+
+
+</div>
+</div>
+
+
+
+<br><br><br><hr><br>
+      <div class="ui-field-contain" style="text-align:right;">
+	<label for="name">Email</label>  
+	<input type="text" size="20" id="email"/>
+      </div>
+
+      <div class="ui-field-contain" style="text-align:right;">
+	<label for="name">头像url</label>  
+       	<input type="text" size="20" id="avatar" />
+      </div>
+
+      <div class="ui-field-contain" style="text-align:right;">
+	<label for="name">号码</label>  
+	  <input type="text" id="ext""/>
+      </div>
+
+      <img width="200" id="avatar_img"/><br>
+	<input type="hidden" id="cid" value=""/>
+	<input type="hidden" id="cidname" value=""/>
+	  <button data-inline="true" id="callbtn">呼叫</button>
+<br>
+<hr>
+<br><br>
+	  <div style="color:blue" id="main_info">&nbsp;</div><br><br>
+
+	</div>
+
+
+	<br>
+	<br>
+<!--
+	<b>TEXT</b><br>To: <input type="text" size="20" id="textto"/> MSG: <input type="text" size="40" id="textmsg"/>
+	<button id="vtxtbtn">Send</button>
+-->
+      </div>
+
+    </div><!-- /page -->
+
+    <div data-role="page" id="dialog-logout" data-close-btn="none">
+      <div data-role="header">
+        <h2>登出</h2>
+      </div>
+      <div data-role="content">
+        <p>您已经登出或者与服务器失去连接！</p>
+
+	<button onclick="$('#dialog-logout').dialog('close')">好</button>
+      </div>
+    </div>
+
+    <div data-role="page" id="dialog-login-error" data-close-btn="none">
+      <div data-role="header">
+        <h2>登陆失败</h2>
+      </div>
+      <div data-role="content">
+        <p>登陆中出现错误</p>
+
+	<button onclick="$('#dialog-login-error').dialog('close')">OK</button>
+      </div>
+    </div>
+
+    <div data-role="page" id="dialog-hold" data-close-btn="none">
+      <div data-role="header">
+        <h2>呼叫保持</h2>
+      </div>
+      <div data-role="content">
+        <p>电话正在呼叫保持中</p>
+
+	<button onclick="$('#dialog-hold').dialog('close');cur_call.toggleHold();">继续通话</button>
+      </div>      
+    </div>
+
+    <div data-role="page" id="dialog-incoming-call" data-close-btn="none">
+      <div data-role="header">
+        <h2>来电</h2>
+      </div>
+      <div data-role="content">
+        <div id="dialog-incoming-call-txt"><p>有来电</p></div>
+	<button id="ansbtn">语音接听</button> 
+	<div id="vansdiv"><button id="vansbtn">视频接听</button></div>
+	<button id="declinebtn">挂断</button>
+      </div>
+      
+    </div>
+
+
+    <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script> 
+    <script type="text/javascript" src="js/jquery.mobile.min.js"></script> 
+    <script type="text/javascript" src="js/jquery.json-2.4.min.js"></script>  
+    <script type="text/javascript" src="js/jquery.cookie.js"></script>
+    <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="js/verto-min.js"></script>
+    <script type="text/javascript" src="js/getScreenId.js"></script>
+    <script type="text/javascript" src="js/md5.min.js"></script>
+    <script type="text/javascript" src="js/jquery.hipchat.js"></script>	
+    <script type="text/javascript" src="verto.js?v=1"></script>
+    <script src="js/client:platform.js?onload=render" async defer></script>
+
+<div id="preload" hidden=true>
+	<img src="images/search.gif"/>
+</div>
+
+  </body>
+</html>
+

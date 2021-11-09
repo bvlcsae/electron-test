@@ -1,0 +1,13 @@
+test/unit/coverage/**
+test/unit/*.js
+test/e2e/*.js
+node_modules/
+src/renderer/assets/**
+src/renderer/chatApi/*.js
+src/renderer/chatApi/util/*.js
+src/renderer/chatApi/customer/*.js
+src/renderer/config/*.js
+src/renderer/util/*.js
+src/renderer/store/modules/*.js
+src/renderer/views/Message/packages/**
+src/renderer/views/Message/packages/utils/*.js
